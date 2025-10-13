@@ -4,17 +4,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * Offer class as per UML diagram
- * Represents promotional deals applicable to MenuItems
- */
+
 public class Offer {
-    // UML specified attributes
     private String offerId;
     private double discountPercent;
     private LocalDateTime validity;
 
-    // Additional attributes for complete functionality
     private String offerName;
     private String description;
     private List<String> applicableItemIds;
@@ -26,7 +21,6 @@ public class Offer {
     private boolean isActive;
     private LocalDateTime createdAt;
 
-    // Constructors
     public Offer() {
         this.applicableItemIds = new ArrayList<>();
         this.applicableCategories = new ArrayList<>();
@@ -49,28 +43,24 @@ public class Offer {
         this.validity = validity;
     }
 
-    // UML specified methods
     public boolean isValidForUser(String userId) {
         if (!isActive || isExpired()) return false;
 
-        // Check usage limit
         if (currentUsage >= usageLimit) return false;
 
-        // Additional user-specific validation could be added here
-        // For now, assume all active, non-expired offers are valid for all users
+      
         return true;
     }
 
     public MenuItem applyOffer(MenuItem menuItem) {
         if (menuItem == null || !isApplicableToItem(menuItem)) {
-            return menuItem; // Return unchanged if not applicable
+            return menuItem; 
         }
 
         double originalPrice = menuItem.getPrice();
         double discountAmount = calculateDiscountAmount(originalPrice);
         double newPrice = Math.max(0.0, originalPrice - discountAmount);
 
-        // Create a copy of the menu item with discounted price
         MenuItem discountedItem = new MenuItem(
             menuItem.getItemId() + "_DISCOUNTED",
             menuItem.getName() + " (Discounted)",
@@ -102,7 +92,6 @@ public class Offer {
             return true;
         }
 
-        // Check if item's category is included
         if (item.getCategory() != null) {
             String categoryName = item.getCategory().getCategoryName();
             if (applicableCategories.contains(categoryName)) {
@@ -110,7 +99,6 @@ public class Offer {
             }
         }
 
-        // If no specific items or categories defined, offer applies to all items
         return applicableItemIds.isEmpty() && applicableCategories.isEmpty();
     }
 
@@ -119,7 +107,6 @@ public class Offer {
 
         double discountAmount = originalPrice * (discountPercent / 100.0);
 
-        // Apply maximum discount limit if set
         if (maximumDiscount > 0) {
             discountAmount = Math.min(discountAmount, maximumDiscount);
         }
@@ -150,7 +137,6 @@ public class Offer {
         return orderValue >= minimumOrderValue;
     }
 
-    // Item and category management
     public void addApplicableItem(String itemId) {
         if (itemId != null && !applicableItemIds.contains(itemId)) {
             applicableItemIds.add(itemId);
@@ -179,7 +165,6 @@ public class Offer {
         applicableCategories.clear();
     }
 
-    // Status management
     public void activate() {
         this.isActive = true;
     }
@@ -198,7 +183,6 @@ public class Offer {
         this.currentUsage = 0;
     }
 
-    // Analytics methods
     public double getUsageRate() {
         if (usageLimit == 0 || usageLimit == Integer.MAX_VALUE) return 0.0;
         return (double) currentUsage / usageLimit;

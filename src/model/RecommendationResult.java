@@ -6,16 +6,11 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-/**
- * RecommendationResult class as per UML diagram
- * Contains recommendation list and explanations
- */
+
 public class RecommendationResult {
-    // UML specified attributes
     private List<MenuItem> recommendationList;
     private Map<String, String> explanations;
 
-    // Additional attributes for complete functionality
     private String userId;
     private Map<String, Double> confidenceScores;
     private LocalDateTime generatedAt;
@@ -24,7 +19,6 @@ public class RecommendationResult {
     private double averageConfidence;
     private long processingTimeMs;
 
-    // Constructors
     public RecommendationResult() {
         this.recommendationList = new ArrayList<>();
         this.explanations = new HashMap<>();
@@ -46,7 +40,6 @@ public class RecommendationResult {
         this.algorithmUsed = algorithmUsed;
     }
 
-    // Core functionality methods
     public void addRecommendation(MenuItem item, String explanation, double confidence) {
         if (item != null) {
             recommendationList.add(item);

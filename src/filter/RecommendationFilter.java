@@ -14,10 +14,8 @@ import java.util.stream.Collectors;
 
 public class RecommendationFilter {
 
-    // Active FilterCriteria to be applied as a pipeline (UML composition-style use)
     private List<FilterCriteria> activeFilters;
 
-    // AND (strict) vs OR (lenient) evaluation for the activeFilters pipeline
     private boolean strictMode;
 
     public RecommendationFilter() {
@@ -25,9 +23,7 @@ public class RecommendationFilter {
         this.strictMode = true; // default to strict (AND) composition
     }
 
-    // ========== UML methods ==========
 
-    // Inventory status filter: "available" | "unavailable" | anything -> pass-through
     public List<MenuItem> filterByInventory(List<MenuItem> menuList, String inventoryStatus) {
         if (menuList == null || menuList.isEmpty()) return new ArrayList<>();
         if (inventoryStatus == null || inventoryStatus.isBlank()) return new ArrayList<>(menuList);
@@ -42,7 +38,6 @@ public class RecommendationFilter {
                 .collect(Collectors.toList());
     }
 
-    // Dietary restrictions filter using allergy list
     public List<MenuItem> filterByDietaryRestrictions(List<MenuItem> menuList, List<String> allergyList) {
         if (menuList == null || menuList.isEmpty()) return new ArrayList<>();
         if (allergyList == null || allergyList.isEmpty()) return new ArrayList<>(menuList);
@@ -59,7 +54,6 @@ public class RecommendationFilter {
                 .collect(Collectors.toList());
     }
 
-    // Contextual filter using ContextualFactor suitability predicate
     public List<MenuItem> filterByContext(List<MenuItem> menuList, ContextualFactor contextualFactor) {
         if (menuList == null || menuList.isEmpty()) return new ArrayList<>();
         if (contextualFactor == null) return new ArrayList<>(menuList);
@@ -69,7 +63,6 @@ public class RecommendationFilter {
                 .collect(Collectors.toList());
     }
 
-    // ========== Helpful filters referenced by the engine and criteria ==========
 
     public List<MenuItem> filterByPriceRange(List<MenuItem> menuList, double minPrice, double maxPrice) {
         if (menuList == null || menuList.isEmpty()) return new ArrayList<>();
@@ -133,7 +126,6 @@ public class RecommendationFilter {
         return menuList.stream().filter(i -> !i.isSpicy()).collect(Collectors.toList());
     }
 
-    // ========== FilterCriteria pipeline (UML: appliesTo with AND/OR composition) ==========
 
     public void addFilter(FilterCriteria criteria) {
         if (criteria != null && !activeFilters.contains(criteria)) {
@@ -163,12 +155,10 @@ public class RecommendationFilter {
         return menuList.stream()
                 .filter(item -> {
                     if (strictMode) {
-                        // AND logic
                         return activeFilters.stream()
                                 .filter(FilterCriteria::isActive)
                                 .allMatch(f -> f.appliesTo(item));
                     } else {
-                        // OR logic
                         return activeFilters.stream()
                                 .filter(FilterCriteria::isActive)
                                 .anyMatch(f -> f.appliesTo(item));
@@ -177,13 +167,6 @@ public class RecommendationFilter {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Full pipeline used by the engine:
-     * 1) Inventory (available)
-     * 2) Dietary (allergies, veg/vegan, price)
-     * 3) Contextual
-     * 4) Custom FilterCriteria (AND/OR based on strictMode)
-     */
     public List<MenuItem> applyFilteringPipeline(
             List<MenuItem> menuList,
             UserPreferences userPreferences,
@@ -193,10 +176,8 @@ public class RecommendationFilter {
 
         List<MenuItem> filtered = new ArrayList<>(menuList);
 
-        // 1) Availability first
         filtered = filterByInventory(filtered, "available");
 
-        // 2) Dietary: allergies + veg/vegan + price range
         if (userPreferences != null) {
             filtered = filterByDietaryRestrictions(filtered, userPreferences.getAllergyList());
             if (userPreferences.isVeganPreference()) {
@@ -209,18 +190,15 @@ public class RecommendationFilter {
                     userPreferences.getPriceRangeUpper());
         }
 
-        // 3) Context awareness
         if (context != null) {
             filtered = filterByContext(filtered, context);
         }
 
-        // 4) Custom criteria pipeline
         filtered = applyAllFilters(filtered);
 
         return filtered;
     }
 
-    // ========== Analytics helpers ==========
 
     public Map<String, Integer> getFilteringStats(List<MenuItem> originalList, List<MenuItem> filteredList) {
         Map<String, Integer> stats = new HashMap<>();
@@ -249,7 +227,6 @@ public class RecommendationFilter {
         return activeFilters.stream().anyMatch(FilterCriteria::isActive);
     }
 
-    // ========== Getters / Setters / toString ==========
 
     public List<FilterCriteria> getActiveFilters() {
         return new ArrayList<>(activeFilters);

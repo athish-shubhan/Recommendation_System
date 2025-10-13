@@ -4,21 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * MenuCategory class with reflexive association for hierarchical categories
- * As per UML: MenuCategory 0..1 -- 0..* MenuCategory (parentCategory-childCategories)
- */
+
 public class MenuCategory {
-    // UML specified attributes
     private String categoryId;
     private String categoryName;
     private String description;
 
-    // Reflexive association attributes (0..1 parent, 0..* children)
     private MenuCategory parentCategory;
     private List<MenuCategory> childCategories;
 
-    // Associated menu items
     private List<MenuItem> menuItems;
 
     // Constructors
@@ -38,33 +32,27 @@ public class MenuCategory {
         this.description = description;
     }
 
-    // Menu item management (association relationship)
     public void addMenuItem(MenuItem menuItem) {
         if (menuItem != null && !menuItems.contains(menuItem)) {
             menuItems.add(menuItem);
-            menuItem.setCategory(this); // Maintain bidirectional relationship
-        }
+            menuItem.setCategory(this); }
     }
 
     public void removeMenuItem(MenuItem menuItem) {
         if (menuItems.remove(menuItem) && menuItem != null) {
-            // Only clear category if it was this category
             if (this.equals(menuItem.getCategory())) {
                 menuItem.setCategory(null);
             }
         }
     }
 
-    // Hierarchical category management (reflexive association)
     public void setParentCategory(MenuCategory parentCategory) {
-        // Remove from old parent if exists
         if (this.parentCategory != null) {
             this.parentCategory.removeChildCategory(this);
         }
 
         this.parentCategory = parentCategory;
 
-        // Add to new parent if not null
         if (parentCategory != null) {
             parentCategory.addChildCategory(this);
         }
@@ -74,7 +62,6 @@ public class MenuCategory {
         if (childCategory != null && !childCategories.contains(childCategory)) {
             childCategories.add(childCategory);
 
-            // Ensure bidirectional relationship
             if (!this.equals(childCategory.getParentCategory())) {
                 childCategory.parentCategory = this; // Direct assignment to avoid recursion
             }
@@ -83,14 +70,12 @@ public class MenuCategory {
 
     public void removeChildCategory(MenuCategory childCategory) {
         if (childCategories.remove(childCategory) && childCategory != null) {
-            // Clear parent reference if it was this category
             if (this.equals(childCategory.getParentCategory())) {
                 childCategory.parentCategory = null;
             }
         }
     }
 
-    // Utility methods for hierarchy navigation
     public boolean isRootCategory() {
         return parentCategory == null;
     }
@@ -198,13 +183,11 @@ public class MenuCategory {
         return matches;
     }
 
-    // Validation methods
     public boolean isValidHierarchy() {
-        // Check for circular references
         MenuCategory current = this.parentCategory;
         while (current != null) {
             if (current == this) {
-                return false; // Circular reference detected
+                return false; =
             }
             current = current.parentCategory;
         }

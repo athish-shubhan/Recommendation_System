@@ -7,16 +7,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * UserProfileManager - Manages user preferences and order history
- * Association relationship with UserPreferences and OrderHistory as per UML
- */
 public class UserProfileManager {
     private Map<String, UserPreferences> userPreferences;
     private Map<String, OrderHistory> userOrderHistories;
     private FeedbackAnalyzer feedbackAnalyzer;
 
-    // Constructor
     public UserProfileManager() {
         this.userPreferences = new HashMap<>();
         this.userOrderHistories = new HashMap<>();
@@ -27,7 +22,6 @@ public class UserProfileManager {
         this.feedbackAnalyzer = feedbackAnalyzer;
     }
 
-    // UML method implementations
     public UserPreferences loadUserPreferences(String userId) {
         return userPreferences.computeIfAbsent(userId, this::createDefaultUserPreferences);
     }
@@ -37,16 +31,13 @@ public class UserProfileManager {
         System.out.println("✓ Updated preferences for user: " + userId);
     }
 
-    // Additional methods for comprehensive user management
     public OrderHistory getUserOrderHistory(String userId, String timeRange) {
         OrderHistory history = userOrderHistories.get(userId);
         if (history == null) {
-            // Create empty history for new users
             history = new OrderHistory(userId);
             userOrderHistories.put(userId, history);
         }
 
-        // Filter by time range if specified
         if ("recent".equals(timeRange)) {
             return filterRecentOrders(history, 30); // Last 30 days
         } else if ("week".equals(timeRange)) {
@@ -60,7 +51,6 @@ public class UserProfileManager {
         OrderHistory history = userOrderHistories.computeIfAbsent(userId, OrderHistory::new);
         history.addOrder(order);
 
-        // Update user preferences based on order patterns
         updatePreferencesFromOrder(userId, order);
     }
 
@@ -92,14 +82,12 @@ public class UserProfileManager {
             feedbackAnalyzer.updatePreferencesBasedOnFeedback(userId, feedbackData);
         }
 
-        // Update preferences based on rating
         updatePreferencesFromRating(prefs, itemId, rating);
 
         System.out.println(String.format("✓ Updated preferences from feedback: %s -> %s (%.1f)", 
                                         userId, itemId, rating));
     }
 
-    // Analytics and insights
     public Map<String, Object> getUserAnalytics(String userId) {
         Map<String, Object> analytics = new HashMap<>();
 
@@ -113,11 +101,9 @@ public class UserProfileManager {
         analytics.put("favorite_cuisines", prefs.getFavouriteCuisines());
         analytics.put("price_range", Arrays.asList(prefs.getPriceRangeLower(), prefs.getPriceRangeUpper()));
 
-        // Calculate ordering patterns
         Map<String, Integer> categoryFrequency = calculateCategoryFrequency(history);
         analytics.put("category_preferences", categoryFrequency);
 
-        // Calculate average rating given
         double avgRating = calculateAverageRatingGiven(history);
         analytics.put("average_rating_given", avgRating);
 
@@ -140,7 +126,6 @@ public class UserProfileManager {
     // Helper methods
     private UserPreferences createDefaultUserPreferences(String userId) {
         UserPreferences prefs = new UserPreferences(userId);
-        // Set reasonable defaults
         prefs.setSpicinessLevel(2); // Mild
         prefs.setPriceRange(0.0, 200.0); // Wide range
         return prefs;
@@ -164,11 +149,9 @@ public class UserProfileManager {
 
         // Update category preferences based on ordered items
         for (String itemId : order.getItemIds()) {
-            // In a real implementation, you would look up the item and update preferences
-            // For now, we'll do basic category preference updates
+        ///need from other grp members
         }
 
-        // Update price range if order falls outside current range
         double orderTotal = order.getTotalAmount();
         if (orderTotal > prefs.getPriceRangeUpper()) {
             prefs.setPriceRange(prefs.getPriceRangeLower(), orderTotal * 1.2);
@@ -176,12 +159,9 @@ public class UserProfileManager {
     }
 
     private void updatePreferencesFromRating(UserPreferences prefs, String itemId, double rating) {
-        // Update preferences based on rating patterns
         if (rating >= 4.0) {
-            // Positive rating - could update ingredient preferences
             System.out.println("Positive feedback recorded, updating preferences");
         } else if (rating <= 2.0) {
-            // Negative rating - could add to avoid list
             System.out.println("Negative feedback recorded, updating avoid preferences");
         }
     }
@@ -190,8 +170,7 @@ public class UserProfileManager {
         Map<String, Integer> frequency = new HashMap<>();
 
         for (Order order : history.getOrderList()) {
-            // In real implementation, would look up item categories
-            // For demo, using placeholder logic
+            ///need from other grp members
             frequency.merge("Food", 1, Integer::sum);
         }
 
@@ -255,7 +234,6 @@ public class UserProfileManager {
         return Math.min(1.0, overlapLength / averageRange);
     }
 
-    // Bulk operations
     public void importUserProfiles(Map<String, UserPreferences> profiles) {
         userPreferences.putAll(profiles);
         System.out.println("✓ Imported " + profiles.size() + " user profiles");
@@ -271,7 +249,6 @@ public class UserProfileManager {
         System.out.println("✓ Cleared data for user: " + userId);
     }
 
-    // Getters and setters
     public FeedbackAnalyzer getFeedbackAnalyzer() {
         return feedbackAnalyzer;
     }

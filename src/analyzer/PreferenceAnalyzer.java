@@ -3,10 +3,7 @@ package restaurant.recommendation.analyzer;
 import restaurant.recommendation.model.*;
 import java.util.List;
 
-/**
- * Abstract PreferenceAnalyzer class as per UML diagram
- * Implements Comparable interface for analyzer ranking
- */
+
 public abstract class PreferenceAnalyzer implements Comparable<PreferenceAnalyzer> {
     protected String analyzerName;
     protected double weight;
@@ -16,7 +13,6 @@ public abstract class PreferenceAnalyzer implements Comparable<PreferenceAnalyze
         this.weight = weight;
     }
 
-    // Abstract methods as per UML diagram
     public abstract double scoreItemsBasedOnPreferences(MenuItem menuItem, UserPreferences userPreferences);
 
     public abstract double calculateTasteSimilarity(UserPreferences userPreferences, MenuItem menuItem);

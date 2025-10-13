@@ -4,10 +4,7 @@ import restaurant.recommendation.model.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * ContentBasedPreferenceAnalyzer - Concrete implementation
- * Analyzes user preferences based on item content and attributes
- */
+
 public class ContentBasedPreferenceAnalyzer extends PreferenceAnalyzer {
 
     public ContentBasedPreferenceAnalyzer() {
@@ -18,21 +15,18 @@ public class ContentBasedPreferenceAnalyzer extends PreferenceAnalyzer {
     public double scoreItemsBasedOnPreferences(MenuItem menuItem, UserPreferences userPreferences) {
         double score = 0.0;
 
-        // Dietary preference scoring
         if (userPreferences.isVegPreference() && menuItem.isVegetarian()) {
             score += 0.8;
         } else if (!userPreferences.isVegPreference() && !menuItem.isVegetarian()) {
             score += 0.6;
         }
 
-        // Price range consideration
         if (userPreferences.isWithinPriceRange(menuItem.getPrice())) {
             score += 0.5;
         } else {
             score *= 0.3; // Penalty for out of range
         }
 
-        // Spiciness matching
         if (menuItem.isSpicy()) {
             if (userPreferences.getSpicinessLevel() >= 3) {
                 score += 0.4;
@@ -41,7 +35,6 @@ public class ContentBasedPreferenceAnalyzer extends PreferenceAnalyzer {
             }
         }
 
-        // Category preferences
         String categoryName = menuItem.getCategory().getCategoryName();
         double categoryPref = userPreferences.getCategoryPreference(categoryName);
         score += categoryPref * 0.3;
@@ -53,7 +46,6 @@ public class ContentBasedPreferenceAnalyzer extends PreferenceAnalyzer {
     public double calculateTasteSimilarity(UserPreferences userPreferences, MenuItem menuItem) {
         double similarity = 0.0;
 
-        // Ingredient-based similarity
         List<String> ingredients = menuItem.getIngredientsList();
         for (String ingredient : ingredients) {
             double ingredientPref = userPreferences.getIngredientPreference(ingredient);

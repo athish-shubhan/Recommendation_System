@@ -8,32 +8,25 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * RecommendationEngine - Central orchestrator as per UML diagram
- * Manages all recommendation logic with composition/aggregation relationships
- */
+
 public class RecommendationEngine {
     // Core attributes
     private String algorithmType;
     private LocalDateTime lastUpdateTimestamp;
     private Map<String, Double> performanceMetrics;
 
-    // Composition relationships (filled diamond) - lifecycle bound
     private PreferenceAnalyzer preferenceAnalyzer;
     private FeedbackAnalyzer feedbackAnalyzer;
     private RecommendationFilter recommendationFilter;
 
-    // Aggregation relationships (hollow diamond) - independently existing
     private UserProfileManager userProfileManager;
     private PopularityTracker popularityTracker;
     private Inventory inventory;
 
-    // Collections
     private List<MenuItem> menuItems;
     private Map<String, MenuItem> menuItemMap;
     private List<Offer> activeOffers;
 
-    // Default constructor
     public RecommendationEngine() {
         this.algorithmType = "Hybrid";
         this.lastUpdateTimestamp = LocalDateTime.now();
@@ -42,12 +35,10 @@ public class RecommendationEngine {
         this.menuItemMap = new HashMap<>();
         this.activeOffers = new ArrayList<>();
 
-        // Initialize composition relationships with defaults
         this.preferenceAnalyzer = new ContentBasedPreferenceAnalyzer();
         this.feedbackAnalyzer = new AdvancedFeedbackAnalyzer();
         this.recommendationFilter = new RecommendationFilter();
 
-        // Initialize aggregation relationships
         this.userProfileManager = new UserProfileManager();
         this.popularityTracker = new PopularityTracker();
         this.inventory = new Inventory();
@@ -55,7 +46,6 @@ public class RecommendationEngine {
         initializePerformanceMetrics();
     }
 
-    // Constructor with composition components
     public RecommendationEngine(PreferenceAnalyzer preferenceAnalyzer,
                                FeedbackAnalyzer feedbackAnalyzer,
                                UserProfileManager userProfileManager) {
@@ -71,7 +61,6 @@ public class RecommendationEngine {
         performanceMetrics.put("success_rate", 0.0);
     }
 
-    // Core UML methods implementation
     public UserPreferences retrieveUserProfile(String userId) {
         return userProfileManager.loadUserPreferences(userId);
     }
@@ -173,11 +162,9 @@ public class RecommendationEngine {
     public void coordinateWithOffers(List<Offer> offerList) {
         this.activeOffers = new ArrayList<>(offerList);
 
-        // Update recommendation scoring to consider active offers
         System.out.println("✓ Coordinated with offers: " + offerList.size() + " active offers");
     }
 
-    // Main recommendation generation method
     public RecommendationResult generateRecommendations(String userId, 
                                                        ContextualFactor context, 
                                                        int maxResults) {
@@ -192,32 +179,25 @@ public class RecommendationEngine {
                 return handleColdStart(userId, context, maxResults);
             }
 
-            // 3. Get available menu items
             List<MenuItem> availableItems = analyzeMenuItems(menuItems, context);
 
             if (availableItems.isEmpty()) {
                 return new RecommendationResult(userId, new ArrayList<>());
             }
 
-            // 4. Apply contextual filters
             List<MenuItem> contextFiltered = applyContextualFilters(availableItems, context);
 
-            // 5. Apply dietary and allergy filters
             List<MenuItem> dietaryFiltered = recommendationFilter.filterByDietaryRestrictions(
                 contextFiltered, userPreferences.getAllergyList());
 
-            // 6. Score and rank items
             List<MenuItem> rankedItems = scoreAndRankItems(dietaryFiltered, userPreferences);
 
-            // 7. Select top recommendations
             List<MenuItem> finalRecommendations = rankedItems.stream()
                     .limit(maxResults)
                     .collect(Collectors.toList());
 
-            // 8. Present results with explanations
             RecommendationResult result = presentRecommendations(userId, finalRecommendations);
 
-            // 9. Update performance metrics
             long processingTime = System.currentTimeMillis() - startTime;
             result.addMetadata("processing_time_ms", processingTime);
 
@@ -250,14 +230,12 @@ public class RecommendationEngine {
             performanceMetrics.put("avg_confidence", rating);
         }
 
-        // Update success rate (ratings >= 3.5 considered successful)
         double successCount = rating >= 3.5 ? 1.0 : 0.0;
         double currentSuccessRate = performanceMetrics.getOrDefault("success_rate", 0.0);
         double newSuccessRate = ((currentSuccessRate * currentTotal) + successCount) / (currentTotal + 1);
         performanceMetrics.put("success_rate", newSuccessRate);
     }
 
-    // Menu management
     public void addMenuItem(MenuItem menuItem) {
         menuItems.add(menuItem);
         menuItemMap.put(menuItem.getItemId(), menuItem);
@@ -281,7 +259,6 @@ public class RecommendationEngine {
         }
     }
 
-    // Getters and setters for aggregation relationships
     public UserProfileManager getUserProfileManager() {
         return userProfileManager;
     }

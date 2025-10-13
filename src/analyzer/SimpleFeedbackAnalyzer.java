@@ -16,13 +16,11 @@ public class SimpleFeedbackAnalyzer extends FeedbackAnalyzer {
 
     @Override
     public void processCustomerReviews(String itemId, String userId, double rating, String comment) {
-        // Store rating history
         userRatings.computeIfAbsent(userId, k -> new ArrayList<>()).add(rating);
 
         System.out.println(String.format("Simple feedback: User %s rated item %s as %.1f", 
                                         userId, itemId, rating));
 
-        // Simple processing based on rating
         if (rating >= 4.0) {
             System.out.println("  Positive feedback recorded");
         } else if (rating <= 2.0) {
@@ -51,17 +49,14 @@ public class SimpleFeedbackAnalyzer extends FeedbackAnalyzer {
             return 0.5; // Neutral
         }
 
-        // Simple keyword-based sentiment analysis
         String text = feedbackText.toLowerCase();
         double sentiment = 0.5; // Start neutral
 
-        // Positive keywords
         if (text.contains("good") || text.contains("great") || text.contains("excellent") ||
             text.contains("amazing") || text.contains("delicious") || text.contains("love")) {
             sentiment += 0.3;
         }
 
-        // Negative keywords
         if (text.contains("bad") || text.contains("terrible") || text.contains("awful") ||
             text.contains("hate") || text.contains("disgusting") || text.contains("worst")) {
             sentiment -= 0.3;

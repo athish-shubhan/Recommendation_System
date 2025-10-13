@@ -3,23 +3,14 @@ package restaurant.recommendation.utils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * SimilarityUtils - Fully implemented per UML intent:
- *  - Cosine similarity for vectors and sparse maps
- *  - Jaccard similarity for sets
- *  - Pearson correlation for co-rated vectors
- *  - Utility normalization and distance helpers
- *
- * All methods are null/empty safe and numerically stable.
- */
+
 public final class SimilarityUtils {
 
     private SimilarityUtils() {
-        // Utility class: prevent instantiation
+        //utility
     }
 
-    // ========== Cosine similarity ==========
-
+//cosine and jaccard
     // Dense vectors
     public static double cosine(double[] a, double[] b) {
         if (!validSameLength(a, b)) return 0.0;
@@ -33,11 +24,9 @@ public final class SimilarityUtils {
         return dot / (Math.sqrt(na) * Math.sqrt(nb));
     }
 
-    // Sparse keyed vectors (e.g., item ratings per user)
     public static double cosine(Map<String, Double> a, Map<String, Double> b) {
         if (a == null || b == null || a.isEmpty() || b.isEmpty()) return 0.0;
 
-        // Iterate over the smaller map for efficiency
         Map<String, Double> small = a.size() <= b.size() ? a : b;
         Map<String, Double> large = small == a ? b : a;
 
@@ -58,7 +47,6 @@ public final class SimilarityUtils {
         return dot / (Math.sqrt(na) * Math.sqrt(nb));
     }
 
-    // ========== Jaccard similarity ==========
 
     public static <T> double jaccard(Set<T> a, Set<T> b) {
         if (a == null || b == null || a.isEmpty() || b.isEmpty()) return 0.0;
@@ -70,9 +58,7 @@ public final class SimilarityUtils {
         return (double) inter.size() / (double) union.size();
     }
 
-    // ========== Pearson correlation (user-user or item-item) ==========
 
-    // Using common keys only
     public static double pearson(Map<String, Double> a, Map<String, Double> b) {
         if (a == null || b == null || a.isEmpty() || b.isEmpty()) return 0.0;
 
@@ -98,7 +84,6 @@ public final class SimilarityUtils {
         return num / denom;
     }
 
-    // ========== Euclidean distance and similarity ==========
 
     public static double euclideanDistance(double[] a, double[] b) {
         if (!validSameLength(a, b)) return Double.POSITIVE_INFINITY;
@@ -110,13 +95,11 @@ public final class SimilarityUtils {
         return Math.sqrt(sum);
     }
 
-    // Convert distance to similarity in (0,1]; larger distance -> smaller similarity
     public static double distanceToSimilarity(double distance) {
         if (Double.isInfinite(distance) || Double.isNaN(distance)) return 0.0;
         return 1.0 / (1.0 + Math.max(0.0, distance));
     }
 
-    // ========== Normalization helpers ==========
 
     // Min-max normalize to [0,1]
     public static double[] minMaxNormalize(double[] v) {
@@ -134,7 +117,6 @@ public final class SimilarityUtils {
         return out;
     }
 
-    // Z-score normalize (mean 0, std 1)
     public static double[] zScoreNormalize(double[] v) {
         if (v == null || v.length == 0) return new double[0];
         double mean = Arrays.stream(v).average().orElse(0.0);
@@ -152,7 +134,6 @@ public final class SimilarityUtils {
         return out;
     }
 
-    // ========== Utility methods ==========
 
     private static boolean validSameLength(double[] a, double[] b) {
         return a != null && b != null && a.length == b.length && a.length > 0;

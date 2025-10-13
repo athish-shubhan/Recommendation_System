@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Order class representing individual orders in the system
- * Used by OrderHistory to track user's ordering patterns
- */
 public class Order {
     private String orderId;
     private String userId;

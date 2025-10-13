@@ -7,19 +7,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * PopularityTracker - Fully implemented per UML:
- *  - trendingScore: Map<String, Double>
- *  - getTrendingItems(timeWindow)
- *  - Records orders, views, ratings with recency decay
- *  - Provides statistics and maintenance utilities
- */
+
 public class PopularityTracker {
 
-    // UML: key metric store
     private final Map<String, Double> trendingScore;
 
-    // Additional internal signals
     private final Map<String, Integer> orderCounts;          // itemId -> total orders
     private final Map<String, Double> viewCounts;            // itemId -> total views
     private final Map<String, List<Double>> ratingHistory;   // itemId -> ratings
@@ -62,7 +54,6 @@ public class PopularityTracker {
         lastOrdered.remove(itemId);
     }
 
-    // ========== Signals (orders/views/ratings) ==========
 
     public void recordOrder(String itemId) {
         if (!itemRegistry.containsKey(itemId)) return;
@@ -148,14 +139,12 @@ public class PopularityTracker {
     }
 
     private void refreshWithinWindow(String timeWindow) {
-        // For now we recompute scores normally (signals already weighed by recency).
-        // Hook point if you later store time-stamped signals and want strict windowing.
+        
         for (String id : itemRegistry.keySet()) {
             updateTrendingScore(id);
         }
     }
 
-    // ========== UML method: getTrendingItems(timeWindow) ==========
 
     public List<MenuItem> getTrendingItems(String timeWindow) {
         refreshWithinWindow(timeWindow);
@@ -167,7 +156,6 @@ public class PopularityTracker {
                 .collect(Collectors.toList());
     }
 
-    // ========== Queries & statistics ==========
 
     public List<MenuItem> getMostOrderedItems(int limit) {
         return orderCounts.entrySet().stream()
@@ -253,7 +241,6 @@ public class PopularityTracker {
         return stats;
     }
 
-    // ========== Maintenance ==========
 
     public void resetItemStatistics(String itemId) {
         if (itemId == null) return;
@@ -275,7 +262,6 @@ public class PopularityTracker {
         lastUpdated = LocalDateTime.now();
     }
 
-    // ========== Introspection ==========
 
     public int getTrackedItemCount() {
         return itemRegistry.size();

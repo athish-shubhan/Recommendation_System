@@ -7,18 +7,13 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
-/**
- * UserPreferences class with all UML specified attributes
- * Data class containing user preference information
- */
+
 public class UserPreferences {
-    // UML specified core attributes  
     private int spicinessLevel;
     private boolean vegPreference;
     private List<String> allergyList;
     private List<String> favouriteCuisines;
 
-    // Additional attributes for complete functionality
     private String userId;
     private boolean veganPreference;
     private Map<String, Double> ingredientPreferences;
@@ -28,7 +23,6 @@ public class UserPreferences {
     private Set<String> dislikedIngredients;
     private Set<String> preferredTags;
 
-    // Constructor
     public UserPreferences() {
         this.allergyList = new ArrayList<>();
         this.favouriteCuisines = new ArrayList<>();
@@ -46,7 +40,6 @@ public class UserPreferences {
         this.userId = userId;
     }
 
-    // Preference management methods
     public void updateIngredientPreference(String ingredient, double preferenceScore) {
         if (ingredient != null) {
             preferenceScore = Math.max(-1.0, Math.min(1.0, preferenceScore)); // Clamp to [-1, 1]
@@ -88,7 +81,6 @@ public class UserPreferences {
         }
     }
 
-    // Allergy management
     public void addAllergen(String allergen) {
         if (allergen != null && !allergen.trim().isEmpty()) {
             allergyList.add(allergen.trim().toLowerCase());
@@ -105,7 +97,6 @@ public class UserPreferences {
         allergyList.clear();
     }
 
-    // Cuisine preference management
     public void addFavouriteCuisine(String cuisine) {
         if (cuisine != null && !cuisine.trim().isEmpty()) {
             String cleanCuisine = cuisine.trim();
@@ -144,7 +135,6 @@ public class UserPreferences {
         return dislikedIngredients.contains(ingredient.toLowerCase());
     }
 
-    // Preferred tags management
     public void addPreferredTag(String tag) {
         if (tag != null && !tag.trim().isEmpty()) {
             preferredTags.add(tag.trim().toLowerCase());
@@ -162,7 +152,6 @@ public class UserPreferences {
         return preferredTags.contains(tag.toLowerCase());
     }
 
-    // Preference scoring methods
     public double calculateItemCompatibility(MenuItem item) {
         if (item == null) return 0.0;
 

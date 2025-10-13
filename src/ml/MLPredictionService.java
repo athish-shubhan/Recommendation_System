@@ -4,10 +4,7 @@ import java.io.*;
 import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * MLPredictionService bridges Java recommendation system with Python ML models.
- * This service calls Python scripts for advanced machine learning predictions.
- */
+
 public class MLPredictionService {
     private static final String PYTHON_SCRIPT_PATH = "python/java_python_bridge.py";
     private final ObjectMapper objectMapper;
@@ -23,9 +20,7 @@ public class MLPredictionService {
         this.pythonExecutable = pythonPath;
     }
 
-    /**
-     * Get ML-based rating prediction for a user-item pair
-     */
+
     public MLPrediction predictRating(String userId, String itemId, String method) {
         Map<String, Object> request = new HashMap<>();
         request.put("command", "predict_rating");
@@ -56,9 +51,7 @@ public class MLPredictionService {
         }
     }
 
-    /**
-     * Get ML-based recommendations for a user from a list of items
-     */
+
     public List<MLRecommendation> getMLRecommendations(String userId, List<String> itemIds, int topK) {
         Map<String, Object> request = new HashMap<>();
         request.put("command", "get_recommendations");
@@ -97,9 +90,6 @@ public class MLPredictionService {
         }
     }
 
-    /**
-     * Update ML models with user feedback
-     */
     public boolean updateModelWithFeedback(String userId, String itemId, double rating, String context) {
         Map<String, Object> request = new HashMap<>();
         request.put("command", "update_feedback");
@@ -126,9 +116,7 @@ public class MLPredictionService {
         }
     }
 
-    /**
-     * Get ML model performance metrics
-     */
+
     public Map<String, Object> getModelPerformance() {
         Map<String, Object> request = new HashMap<>();
         request.put("command", "get_performance");
@@ -151,9 +139,6 @@ public class MLPredictionService {
         }
     }
 
-    /**
-     * Call Python ML service with request data
-     */
     private Map<String, Object> callPythonService(Map<String, Object> request) throws Exception {
         // Convert request to JSON
         String jsonRequest = objectMapper.writeValueAsString(request);
@@ -190,9 +175,7 @@ public class MLPredictionService {
         return result;
     }
 
-    /**
-     * Data class for ML prediction results
-     */
+
     public static class MLPrediction {
         private final double rating;
         private final double confidence;
@@ -219,9 +202,7 @@ public class MLPredictionService {
         }
     }
 
-    /**
-     * Data class for ML recommendation results
-     */
+ 
     public static class MLRecommendation {
         private final String itemId;
         private final double predictedRating;

@@ -7,15 +7,9 @@ import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * OrderHistory class as per UML diagram
- * Data class containing user's order history with orderList attribute
- */
 public class OrderHistory {
-    // UML specified attribute
     private List<Order> orderList;
 
-    // Additional attributes for functionality
     private String userId;
     private LocalDateTime lastUpdated;
 
@@ -30,7 +24,6 @@ public class OrderHistory {
         this.userId = userId;
     }
 
-    // Order management methods
     public void addOrder(Order order) {
         if (order != null) {
             orderList.add(order);

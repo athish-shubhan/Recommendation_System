@@ -2,16 +2,11 @@ package restaurant.recommendation.model;
 
 import java.util.function.Predicate;
 
-/**
- * FilterCriteria class as per UML diagram
- * Represents filtering rules with name, rule, and appliesTo method
- */
+
 public class FilterCriteria {
-    // UML specified attributes
     private String name;
     private String rule;
 
-    // Additional attributes for functionality
     private Predicate<MenuItem> filterPredicate;
     private double priority;
     private boolean isActive;

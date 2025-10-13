@@ -4,12 +4,8 @@ import restaurant.recommendation.model.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * CollaborativePreferenceAnalyzer - Concrete implementation
- * Analyzes preferences based on similar users' behaviors
- */
 public class CollaborativePreferenceAnalyzer extends PreferenceAnalyzer {
-    private Map<String, List<String>> userSimilarities; // userId -> similar user IDs
+    private Map<String, List<String>> userSimilarities; 
     private Map<String, Double> itemPopularity; // itemId -> popularity score
 
     public CollaborativePreferenceAnalyzer() {
@@ -23,7 +19,6 @@ public class CollaborativePreferenceAnalyzer extends PreferenceAnalyzer {
         double score = 0.0;
         String userId = userPreferences.getUserId();
 
-        // Get popularity-based score
         double popularity = itemPopularity.getOrDefault(menuItem.getItemId(), 0.5);
         score += popularity * 0.4;
 
@@ -32,7 +27,6 @@ public class CollaborativePreferenceAnalyzer extends PreferenceAnalyzer {
         if (!similarUsers.isEmpty()) {
             double collaborativeScore = 0.0;
             for (String similarUserId : similarUsers) {
-                // Simulate similarity scoring (in real implementation, would use actual user data)
                 collaborativeScore += 0.7; // Placeholder
             }
             collaborativeScore /= similarUsers.size();
@@ -47,17 +41,14 @@ public class CollaborativePreferenceAnalyzer extends PreferenceAnalyzer {
 
     @Override
     public double calculateTasteSimilarity(UserPreferences userPreferences, MenuItem menuItem) {
-        // Collaborative filtering calculates user-user similarity
         String userId = userPreferences.getUserId();
         List<String> similarUsers = userSimilarities.getOrDefault(userId, new ArrayList<>());
 
         if (similarUsers.isEmpty()) {
-            return 0.5; // Neutral similarity
+            return 0.5; 
         }
 
-        // Average similarity with users who liked this item
-        return 0.75; // Placeholder - would use actual collaborative filtering
-    }
+        return 0.75; 
 
     @Override
     public List<MenuItem> getRecommendations(List<MenuItem> availableItems, 
@@ -74,12 +65,10 @@ public class CollaborativePreferenceAnalyzer extends PreferenceAnalyzer {
 
     @Override
     public void updateFromFeedback(String userId, String itemId, double rating, String feedback) {
-        // Update item popularity
         double currentPopularity = itemPopularity.getOrDefault(itemId, 0.5);
         double newPopularity = (currentPopularity + (rating / 5.0)) / 2.0;
         itemPopularity.put(itemId, newPopularity);
 
-        // Update user similarities (simplified)
         if (rating >= 4.0) {
             userSimilarities.computeIfAbsent(userId, k -> new ArrayList<>());
             System.out.println("Collaborative: Updated user similarity for " + userId);
@@ -98,7 +87,6 @@ public class CollaborativePreferenceAnalyzer extends PreferenceAnalyzer {
         }
     }
 
-    // Utility methods for collaborative filtering
     public void addUserSimilarity(String userId, String similarUserId) {
         userSimilarities.computeIfAbsent(userId, k -> new ArrayList<>()).add(similarUserId);
     }

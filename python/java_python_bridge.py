@@ -1,12 +1,12 @@
 
 import json
 import sys
-from ml_integration import IceSpiceMLEngine
+from ml_integration import MLEngine
 
 class JavaPythonBridge:
 
     def __init__(self):
-        self.ml_engine = IceSpiceMLEngine()
+        self.ml_engine = MLEngine()
 
     def process_java_request(self, request_data: dict) -> dict:
 

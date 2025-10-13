@@ -3,17 +3,12 @@ package restaurant.recommendation.model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * ContextualFactor class as per UML diagram
- * Contains environmental and session-specific data
- */
+
 public class ContextualFactor {
-    // UML specified attributes
     private String season;
     private String timeOfDay;
     private String weather;
 
-    // Additional contextual attributes
     private LocalDateTime currentTime;
     private boolean isWeekend;
     private double temperature;
@@ -21,7 +16,6 @@ public class ContextualFactor {
     private String deviceType;
     private int groupSize;
 
-    // Constructor
     public ContextualFactor() {
         this.currentTime = LocalDateTime.now();
         determineTimeOfDay();
@@ -36,7 +30,6 @@ public class ContextualFactor {
         this.temperature = temperature;
     }
 
-    // Auto-determination methods
     private void determineTimeOfDay() {
         if (currentTime == null) {
             this.timeOfDay = "unknown";
@@ -80,10 +73,9 @@ public class ContextualFactor {
         }
 
         int dayOfWeek = currentTime.getDayOfWeek().getValue();
-        this.isWeekend = (dayOfWeek == 6 || dayOfWeek == 7); // Saturday or Sunday
+        this.isWeekend = (dayOfWeek == 6 || dayOfWeek == 7); 
     }
 
-    // Contextual condition methods
     public boolean isHotWeather() {
         return temperature > 25.0;
     }
@@ -139,7 +131,6 @@ public class ContextualFactor {
         return groupSize <= 1;
     }
 
-    // Recommendation influence methods
     public List<String> getRecommendedTags() {
         List<String> tags = new ArrayList<>();
 

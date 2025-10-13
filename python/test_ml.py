@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""
-Quick test script for Ice & Spice ML integration
-"""
+
 
 from ml_integration import IceSpiceMLEngine
 
 def main():
-    print("=== Testing Ice & Spice ML Integration ===")
+    print("=== Testing Integration ===")
 
     # Initialize ML engine
     ml_engine = IceSpiceMLEngine()

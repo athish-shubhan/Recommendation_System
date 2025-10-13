@@ -4,26 +4,20 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
 
-/**
- * MenuItem class implementing Comparable interface as per UML diagram
- * Represents individual menu items with all attributes and methods specified
- */
+
 public class MenuItem implements Comparable<MenuItem> {
-    // UML specified attributes
     private String itemId;
     private List<String> ingredientsList;
     private double price;
     private double popularityScore;
     private boolean availabilityStatus;
 
-    // Additional attributes for complete functionality
     private String name;
     private MenuCategory category;
     private double averageRating;
     private int totalRatings;
     private List<String> tags;
 
-    // Constructors
     public MenuItem() {
         this.ingredientsList = new ArrayList<>();
         this.tags = new ArrayList<>();
@@ -43,7 +37,6 @@ public class MenuItem implements Comparable<MenuItem> {
         this.price = price;
     }
 
-    // UML specified methods
     public String getDetails() {
         return String.format("MenuItem{id='%s', name='%s', price=%.2f, rating=%.1f, available=%b}", 
                            itemId, name, price, averageRating, availabilityStatus);
@@ -53,7 +46,6 @@ public class MenuItem implements Comparable<MenuItem> {
         return availabilityStatus;
     }
 
-    // Additional methods for complete functionality
     public void updateRating(double newRating) {
         if (totalRatings == 0) {
             this.averageRating = newRating;
@@ -64,7 +56,6 @@ public class MenuItem implements Comparable<MenuItem> {
             this.averageRating = (totalScore + newRating) / this.totalRatings;
         }
 
-        // Update popularity based on rating
         updatePopularityFromRating();
     }
 
@@ -103,36 +94,29 @@ public class MenuItem implements Comparable<MenuItem> {
         return tags != null && tags.contains("hot");
     }
 
-    // Comparable implementation - sorts by popularity score (descending)
     @Override
     public int compareTo(MenuItem other) {
         if (other == null) return 1;
 
-        // Primary sort: popularity score (descending)
         int popularityComparison = Double.compare(other.popularityScore, this.popularityScore);
         if (popularityComparison != 0) {
             return popularityComparison;
         }
 
-        // Secondary sort: average rating (descending)
         int ratingComparison = Double.compare(other.averageRating, this.averageRating);
         if (ratingComparison != 0) {
             return ratingComparison;
         }
 
-        // Tertiary sort: price (ascending - cheaper items preferred if equal popularity/rating)
         int priceComparison = Double.compare(this.price, other.price);
         if (priceComparison != 0) {
             return priceComparison;
         }
 
-        // Final sort: item name for consistency
         return this.name != null ? this.name.compareTo(other.name) : 0;
     }
 
-    // Helper methods
     private void updatePopularityFromRating() {
-        // Popularity combines rating and number of ratings
         if (totalRatings > 0) {
             double ratingFactor = averageRating / 5.0; // Normalize to 0-1
             double volumeFactor = Math.min(1.0, totalRatings / 100.0); // Volume boost up to 100 ratings
