@@ -3,9 +3,7 @@ package restaurant.recommendation.analyzer;
 import restaurant.recommendation.model.*;
 import java.util.*;
 
-/**
- * SimpleFeedbackAnalyzer - Basic feedback processing
- */
+
 public class SimpleFeedbackAnalyzer extends FeedbackAnalyzer {
     private Map<String, List<Double>> userRatings; // userId -> ratings history
 
