@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 
-from ml_integration import IceSpiceMLEngine
+from ml_integration import MLEngine
 
 def main():
     print("=== Testing Integration ===")
 
     # Initialize ML engine
-    ml_engine = IceSpiceMLEngine()
+    ml_engine = MLEngine()
 
     # Test predictions
     users = ["STUDENT001", "HEALTH001", "SWEET001", "MEAT001"]

@@ -49,6 +49,7 @@ public class CollaborativePreferenceAnalyzer extends PreferenceAnalyzer {
         }
 
         return 0.75; 
+    }
 
     @Override
     public List<MenuItem> getRecommendations(List<MenuItem> availableItems, 

@@ -227,7 +227,7 @@ public class Main {
         // Student discount
         Offer studentDiscount = new Offer("ICE001", "Student Special", 15.0);
         studentDiscount.setDescription("15% off on items under ₹50");
-        studentDiscount.setValidUntil(LocalDateTime.now().plusDays(30));
+        studentDiscount.setValidity(LocalDateTime.now().plusDays(30));
         offers.add(studentDiscount);
 
         // Combo deal

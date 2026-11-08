@@ -1,0 +1,10 @@
+.DS_Store
+build/
+__pycache__/
+*.pyc
+.venv/
+venv/
+# created by the Python ML component at runtime
+is.db
+models/
+lib/

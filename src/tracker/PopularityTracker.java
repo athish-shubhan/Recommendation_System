@@ -258,7 +258,7 @@ public class PopularityTracker {
         viewCounts.clear();
         ratingHistory.clear();
         lastOrdered.clear();
-        itemRegistry.keySet().forEach(this::addMenuItem); // reinitialize
+        new ArrayList<>(itemRegistry.values()).forEach(this::addMenuItem); // reinitialize
         lastUpdated = LocalDateTime.now();
     }
 

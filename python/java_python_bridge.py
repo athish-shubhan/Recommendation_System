@@ -1,7 +1,12 @@
 
 import json
 import sys
+import logging
+
 from ml_integration import MLEngine
+
+# Java reads this process's output as JSON, so keep log noise out of it.
+logging.getLogger().setLevel(logging.WARNING)
 
 class JavaPythonBridge:
 

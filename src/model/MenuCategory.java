@@ -187,7 +187,7 @@ public class MenuCategory {
         MenuCategory current = this.parentCategory;
         while (current != null) {
             if (current == this) {
-                return false; =
+                return false;
             }
             current = current.parentCategory;
         }
