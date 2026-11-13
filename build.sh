@@ -7,7 +7,7 @@ echo "=== Building Ice & Spice ==="
 mkdir -p build/classes
 SOURCES="$(mktemp)"
 trap 'rm -f "$SOURCES"' EXIT
-if ls lib/*.jar >/dev/null 2>&1; then
+if ls lib/jackson-databind*.jar >/dev/null 2>&1; then
   CP="$(ls lib/*.jar | tr '\n' ':')"
   find src -name "*.java" -type f > "$SOURCES"
 else
@@ -15,6 +15,6 @@ else
   find src -name "*.java" -type f ! -path "src/ml/*" > "$SOURCES"
   echo "lib/ has no Jackson jars: skipping src/ml (Python ML bridge client)"
 fi
-javac -cp "$CP" -d build/classes @"$SOURCES"
+javac -encoding UTF-8 -cp "$CP" -d build/classes @"$SOURCES"
 echo "Java compiled to build/classes"
 echo "Build completed"
