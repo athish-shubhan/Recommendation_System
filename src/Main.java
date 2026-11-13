@@ -195,6 +195,7 @@ public class Main {
         student.setSpicinessLevel(4);
         student.setPriceRange(15.0, 80.0);
         student.addFavouriteCuisine("Indian");
+        student.addPreferredTag("spicy");
 
         // User 2: Health-conscious vegetarian
         UserPreferences healthUser = new UserPreferences("HEALTH001");
@@ -202,23 +203,29 @@ public class Main {
         healthUser.setSpicinessLevel(2);
         healthUser.setPriceRange(20.0, 100.0);
         healthUser.addAllergen("eggs");
+        healthUser.addPreferredTag("healthy");
 
         // User 3: Sweet tooth
         UserPreferences sweetUser = new UserPreferences("SWEET001");
         sweetUser.setSpicinessLevel(1);
         sweetUser.setPriceRange(15.0, 120.0);
+        sweetUser.addPreferredTag("sweet");
+        sweetUser.updateCategoryPreference("Desserts", 1.0);
 
         // User 4: Meat lover
         UserPreferences meatLover = new UserPreferences("MEAT001");
         meatLover.setVegPreference(false);
         meatLover.setSpicinessLevel(3);
         meatLover.setPriceRange(40.0, 150.0);
+        meatLover.updateCategoryPreference("Non-Vegetarian Food", 1.0);
 
-        // Load profiles into the system
-        engine.retrieveUserProfile("STUDENT001");
-        engine.retrieveUserProfile("HEALTH001");
-        engine.retrieveUserProfile("SWEET001");  
-        engine.retrieveUserProfile("MEAT001");
+        // Store the profiles. (Calling retrieveUserProfile here would create
+        // default profiles and silently discard the ones built above.)
+        UserProfileManager profiles = engine.getUserProfileManager();
+        profiles.createUserProfile("STUDENT001", student);
+        profiles.createUserProfile("HEALTH001", healthUser);
+        profiles.createUserProfile("SWEET001", sweetUser);
+        profiles.createUserProfile("MEAT001", meatLover);
     }
 
     private static void createPromotionalOffers(RecommendationEngine engine) {
