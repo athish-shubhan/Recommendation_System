@@ -58,6 +58,8 @@ public class RecommendationEngine {
     private void initializePerformanceMetrics() {
         performanceMetrics.put("total_recommendations", 0.0);
         performanceMetrics.put("avg_confidence", 0.0);
+        performanceMetrics.put("feedback_count", 0.0);
+        performanceMetrics.put("avg_rating", 0.0);
         performanceMetrics.put("success_rate", 0.0);
     }
 
@@ -85,10 +87,16 @@ public class RecommendationEngine {
     }
 
     public List<MenuItem> scoreAndRankItems(List<MenuItem> filteredItems, UserPreferences userPreferences) {
+        Map<String, Double> scores = new HashMap<>();
+        for (MenuItem item : filteredItems) {
+            scores.put(item.getItemId(), preferenceAnalyzer.scoreItemsBasedOnPreferences(item, userPreferences));
+        }
+        // Best match first; equal scores fall back to rating, then id, so the
+        // result does not depend on the order the menu was loaded in.
         return filteredItems.stream()
-                .sorted((a, b) -> Double.compare(
-                    preferenceAnalyzer.scoreItemsBasedOnPreferences(b, userPreferences),
-                    preferenceAnalyzer.scoreItemsBasedOnPreferences(a, userPreferences)))
+                .sorted(Comparator.comparingDouble((MenuItem item) -> scores.get(item.getItemId())).reversed()
+                        .thenComparing(Comparator.comparingDouble(MenuItem::getAverageRating).reversed())
+                        .thenComparing(MenuItem::getItemId))
                 .collect(Collectors.toList());
     }
 
@@ -127,26 +135,61 @@ public class RecommendationEngine {
             preferenceAnalyzer.updateFromFeedback(userId, itemId, rating, comment);
 
             // Update performance metrics
-            updatePerformanceMetrics(rating);
+            recordFeedback(rating);
         }
     }
 
+    /**
+     * Recommendations for a user with no order history.
+     *
+     * The hard constraints (stock, context, allergens, vegetarian/vegan) are
+     * applied exactly as for a returning user: having no history is never a
+     * reason to show someone a dish they cannot eat. If the user has a stored
+     * profile the remaining items are ranked against it; otherwise they are
+     * ranked by rating.
+     */
     public RecommendationResult handleColdStart(String userId, ContextualFactor context, int maxResults) {
-        // Use popularity-based recommendations for new users
-        List<MenuItem> popularItems = popularityTracker.getTrendingItems("24h");
+        boolean hasProfile = userProfileManager.userExists(userId);
+        UserPreferences userPreferences = retrieveUserProfile(userId);
+        List<MenuItem> eligible = eligibleItems(userPreferences, context);
 
-        // Apply basic contextual filters
-        List<MenuItem> filteredItems = applyContextualFilters(popularItems, context);
+        List<MenuItem> ranked = hasProfile
+                ? scoreAndRankItems(eligible, userPreferences)
+                : rankByPopularity(eligible);
 
-        // Limit results
-        List<MenuItem> recommendations = filteredItems.stream()
-                .limit(maxResults)
-                .collect(Collectors.toList());
-
-        RecommendationResult result = presentRecommendations(userId, recommendations);
-        result.setAlgorithmUsed("Cold Start - Popular Items");
-
+        RecommendationResult result = presentRecommendations(userId, limit(ranked, maxResults));
+        result.setAlgorithmUsed(hasProfile ? "Cold Start - Profile Match" : "Cold Start - Popular Items");
         return result;
+    }
+
+    /**
+     * Items the user may be shown at all: available, in stock, appropriate
+     * for the context, free of the user's allergens, and vegetarian or vegan
+     * when the user is. These are constraints, not preferences, so they are
+     * filters and never part of the score.
+     */
+    List<MenuItem> eligibleItems(UserPreferences userPreferences, ContextualFactor context) {
+        List<MenuItem> items = analyzeMenuItems(menuItems, context);
+        items = applyContextualFilters(items, context);
+        items = recommendationFilter.filterByDietaryRestrictions(items, userPreferences.getAllergyList());
+        if (userPreferences.isVeganPreference()) {
+            items = recommendationFilter.filterVeganOnly(items);
+        } else if (userPreferences.isVegPreference()) {
+            items = recommendationFilter.filterVegetarianOnly(items);
+        }
+        return items;
+    }
+
+    /** Highest rated first; ties broken by item id so the order is repeatable. */
+    private List<MenuItem> rankByPopularity(List<MenuItem> items) {
+        return items.stream()
+                .sorted(Comparator.comparingDouble(MenuItem::getAverageRating).reversed()
+                        .thenComparing(MenuItem::getItemId))
+                .collect(Collectors.toList());
+    }
+
+    private static List<MenuItem> limit(List<MenuItem> items, int maxResults) {
+        return items.stream().limit(Math.max(0, maxResults)).collect(Collectors.toList());
     }
 
     public void synchronizeWithInventory() {
@@ -165,75 +208,60 @@ public class RecommendationEngine {
         System.out.println("✓ Coordinated with offers: " + offerList.size() + " active offers");
     }
 
-    public RecommendationResult generateRecommendations(String userId, 
-                                                       ContextualFactor context, 
+    /**
+     * Top {@code maxResults} items for a user in a context.
+     *
+     * Dietary constraints are enforced for every user. Ranking depends on what
+     * is known: order history gives the full preference ranking, a stored
+     * profile alone gives a profile match, and an unknown user gets the
+     * highest-rated items.
+     */
+    public RecommendationResult generateRecommendations(String userId,
+                                                       ContextualFactor context,
                                                        int maxResults) {
         long startTime = System.currentTimeMillis();
 
-        try {
-            // 1. Retrieve user profile
+        RecommendationResult result;
+        if (isNewUser(userId)) {
+            result = handleColdStart(userId, context, maxResults);
+        } else {
             UserPreferences userPreferences = retrieveUserProfile(userId);
-
-            // 2. Handle cold start scenario
-            if (isNewUser(userId)) {
-                return handleColdStart(userId, context, maxResults);
-            }
-
-            List<MenuItem> availableItems = analyzeMenuItems(menuItems, context);
-
-            if (availableItems.isEmpty()) {
-                return new RecommendationResult(userId, new ArrayList<>());
-            }
-
-            List<MenuItem> contextFiltered = applyContextualFilters(availableItems, context);
-
-            List<MenuItem> dietaryFiltered = recommendationFilter.filterByDietaryRestrictions(
-                contextFiltered, userPreferences.getAllergyList());
-
-            List<MenuItem> rankedItems = scoreAndRankItems(dietaryFiltered, userPreferences);
-
-            List<MenuItem> finalRecommendations = rankedItems.stream()
-                    .limit(maxResults)
-                    .collect(Collectors.toList());
-
-            RecommendationResult result = presentRecommendations(userId, finalRecommendations);
-
-            long processingTime = System.currentTimeMillis() - startTime;
-            result.addMetadata("processing_time_ms", processingTime);
-
-            updatePerformanceMetrics(4.0); // Default positive for successful recommendation
-
-            return result;
-
-        } catch (Exception e) {
-            System.err.println("Error generating recommendations: " + e.getMessage());
-            return handleColdStart(userId, context, maxResults);
+            List<MenuItem> ranked = scoreAndRankItems(eligibleItems(userPreferences, context), userPreferences);
+            result = presentRecommendations(userId, limit(ranked, maxResults));
         }
+
+        result.addMetadata("processing_time_ms", System.currentTimeMillis() - startTime);
+        recordRecommendation(result);
+        return result;
     }
 
-    // Utility methods
     private boolean isNewUser(String userId) {
         OrderHistory history = fetchOrderHistory(userId, "all");
         return history == null || history.getOrderList().isEmpty();
     }
 
-    private void updatePerformanceMetrics(double rating) {
-        double currentTotal = performanceMetrics.get("total_recommendations");
-        double currentAvg = performanceMetrics.get("avg_confidence");
+    /**
+     * Counts a served recommendation and folds its confidence (0..1) into the
+     * running average. A recommendation being produced says nothing about
+     * whether the user liked it, so it does not touch the rating metrics.
+     */
+    private void recordRecommendation(RecommendationResult result) {
+        double served = performanceMetrics.get("total_recommendations");
+        double avgConfidence = performanceMetrics.get("avg_confidence");
+        performanceMetrics.put("avg_confidence",
+                (avgConfidence * served + result.getAverageConfidence()) / (served + 1));
+        performanceMetrics.put("total_recommendations", served + 1);
+    }
 
-        performanceMetrics.put("total_recommendations", currentTotal + 1);
-
-        if (currentTotal > 0) {
-            double newAvg = ((currentAvg * currentTotal) + rating) / (currentTotal + 1);
-            performanceMetrics.put("avg_confidence", newAvg);
-        } else {
-            performanceMetrics.put("avg_confidence", rating);
-        }
-
-        double successCount = rating >= 3.5 ? 1.0 : 0.0;
-        double currentSuccessRate = performanceMetrics.getOrDefault("success_rate", 0.0);
-        double newSuccessRate = ((currentSuccessRate * currentTotal) + successCount) / (currentTotal + 1);
-        performanceMetrics.put("success_rate", newSuccessRate);
+    /** Rating metrics come only from real feedback; 3.5 and above counts as a success. */
+    private void recordFeedback(double rating) {
+        double count = performanceMetrics.get("feedback_count");
+        double avgRating = performanceMetrics.get("avg_rating");
+        double successRate = performanceMetrics.get("success_rate");
+        double success = rating >= 3.5 ? 1.0 : 0.0;
+        performanceMetrics.put("avg_rating", (avgRating * count + rating) / (count + 1));
+        performanceMetrics.put("success_rate", (successRate * count + success) / (count + 1));
+        performanceMetrics.put("feedback_count", count + 1);
     }
 
     public void addMenuItem(MenuItem menuItem) {
