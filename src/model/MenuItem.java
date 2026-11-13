@@ -75,11 +75,24 @@ public class MenuItem implements Comparable<MenuItem> {
         return tags != null && tags.contains("sweet");
     }
 
+    /**
+     * True if any ingredient contains the allergen. Matching ignores case and
+     * a plural "s", so an "eggs" allergy matches the ingredient "egg" and a
+     * "nut" allergy matches "peanuts".
+     */
     public boolean hasAllergen(String allergen) {
-        if (ingredientsList == null) return false;
+        if (ingredientsList == null || allergen == null) return false;
+        String needle = singular(allergen);
+        if (needle.isEmpty()) return false;
 
         return ingredientsList.stream()
-                .anyMatch(ingredient -> ingredient.toLowerCase().contains(allergen.toLowerCase()));
+                .filter(Objects::nonNull)
+                .anyMatch(ingredient -> ingredient.trim().toLowerCase().contains(needle));
+    }
+
+    private static String singular(String word) {
+        String w = word.trim().toLowerCase();
+        return w.length() > 3 && w.endsWith("s") ? w.substring(0, w.length() - 1) : w;
     }
 
     public boolean isHealthy() {
