@@ -15,6 +15,10 @@ Needs JDK 11 or later.
 ./run.sh
 ```
 
+![Demo output](docs/demo.gif)
+
+*Output of `./run.sh`, replayed line by line in a terminal-style frame.*
+
 `Main` builds a 15-item menu, four user profiles and two offers, then prints the top three recommendations per user and processes one piece of feedback. Each persona gets a different list:
 
 | Persona | Profile | Top three |
